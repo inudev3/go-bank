@@ -1,18 +1,18 @@
-package main
+package db
 
 import (
 	"context"
 	"database/sql"
+	"github.com/inudev5/go-bank/util"
 	"github.com/stretchr/testify/require"
-	"gobank/db/sqlc"
-	"gobank/util"
 	"testing"
 	"time"
 )
 
-func createRandomAccount(t *testing.T) db.Accounts {
-	arg := db.CreateAccountParams{
-		Owner:    util.RandomOwner(),
+func createRandomAccount(t *testing.T) Account {
+	user := createRandomUser(t)
+	arg := CreateAccountParams{
+		Owner:    user.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
@@ -44,7 +44,7 @@ func TestQueries_GetAccount(t *testing.T) {
 }
 func TestQueries_UpdateAccount(t *testing.T) {
 	account1 := createRandomAccount(t)
-	arg := db.UpdateAccountParams{
+	arg := UpdateAccountParams{
 		ID:      account1.ID,
 		Balance: util.RandomMoney(),
 	}
@@ -71,7 +71,7 @@ func TestQueries_ListAccounts(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		createRandomAccount(t)
 	}
-	arg := db.ListAccountsParams{Limit: 5, Offset: 5}
+	arg := ListAccountsParams{Limit: 5, Offset: 5}
 	accounts, err := testQueries.ListAccounts(context.Background(), arg)
 	require.NoError(t, err)
 	require.Len(t, accounts, 5)
